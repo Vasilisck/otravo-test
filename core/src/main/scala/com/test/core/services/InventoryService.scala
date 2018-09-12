@@ -1,6 +1,6 @@
 package com.test.core.services
 
-import com.test.core.api.{Genre, InventoryResponse, Show}
+import com.test.core.api.{Genre, GenreResponse, InventoryResponse, Show}
 import org.joda.time.DateTime
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 
@@ -30,6 +30,7 @@ class InventoryService(shows: List[Show]) {
       .map(show => show.getPerformanceResponse(queryDate, showDate))
       .flatMap(_.toOption)
       .groupBy(_.genre)
+      .map(kv => GenreResponse(kv._1, kv._2))
       .toList
     InventoryResponse(res)
   }
