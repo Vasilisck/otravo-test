@@ -3,7 +3,7 @@ package com.test.cli
 import java.io.File
 
 import com.test.cli.config.Config
-import com.test.core.api.{Genre, PerformanceStatus}
+import com.test.core.api.{Genre, PerformanceResponse, PerformanceStatus}
 import com.test.core.services.InventoryService
 import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import org.json4s._
@@ -34,10 +34,17 @@ object Main extends App {
 
   parser.parse(args, Config()) match {
     case Some(config) => process(config)
+    case None =>
   }
 
   def process(config: Config): Unit = {
-    implicit val formats = DefaultFormats + new EnumNameSerializer(Genre) + new EnumNameSerializer(PerformanceStatus)
+
+    val performanceResponseSerializer = FieldSerializer[PerformanceResponse](
+      FieldSerializer.ignore("genre")
+    )
+
+    implicit val formats = DefaultFormats + new EnumNameSerializer(Genre) + new EnumNameSerializer(PerformanceStatus) +
+      performanceResponseSerializer
 
     val inventory = InventoryService(Source.fromFile(config.input))
     val response = inventory.getInventoryResponse(config.queryDate, config.showDate)
