@@ -2,7 +2,6 @@ name := "otravo-test"
 
 version := "1.0"
 
-
 lazy val versions = new Object {
   val scala = "2.12.6"
   val jodaTime = "2.7"
@@ -12,7 +11,6 @@ lazy val versions = new Object {
 }
 
 lazy val commonSettings = Seq(
-
   scalaVersion := versions.scala,
   libraryDependencies ++= Seq(
     "joda-time" % "joda-time" % versions.jodaTime
@@ -20,17 +18,20 @@ lazy val commonSettings = Seq(
 )
 
 lazy val core = (project in file("core"))
+  .configs(IntegrationTest)
   .settings(
     commonSettings,
+    Defaults.itSettings,
     libraryDependencies ++= Seq(
-      "org.scalatest" %% "scalatest" % versions.scalaTest % "test"
+      "org.scalatest" %% "scalatest" % versions.scalaTest % "it,test"
     )
   )
 
 lazy val cli = (project in file("cli"))
   .settings(
     commonSettings,
-    libraryDependencies ++= Seq(
+    assemblyJarName in assembly := "otravo-test.jar",
+      libraryDependencies ++= Seq(
       "org.json4s" %% "json4s-native" % versions.json4s,
       "org.json4s" %% "json4s-jackson" % versions.json4s,
       "org.json4s" %% "json4s-ext" % versions.json4s,

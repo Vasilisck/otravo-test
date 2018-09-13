@@ -13,8 +13,6 @@ class ShowSpec extends WordSpec with Matchers {
   val showGenre: Genre.Value = Genre.drama
   val show: Show = Show(showTitle, showPremiereDate, showGenre)
 
-  val showDatePlus2Weeks: DateTime = showPremiereDate.plusWeeks(2)
-
   "Shows performance response status" should {
     "be 'sale not started' status" when {
       "query date is before 'sale starts' moment" in {

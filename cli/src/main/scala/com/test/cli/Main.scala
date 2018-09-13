@@ -14,7 +14,6 @@ import org.json4s.ext.EnumNameSerializer
 import scala.io.Source
 
 object Main extends App {
-  implicit val formats = DefaultFormats + new EnumNameSerializer(Genre) + new EnumNameSerializer(PerformanceStatus)
   val formatter: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")
 
   val parser = new OptionParser[Config]("otravo-test-cli") {
@@ -34,13 +33,15 @@ object Main extends App {
   }
 
   parser.parse(args, Config()) match {
-    case Some(config) =>
-      val inventory = new InventoryService(Source.fromFile(config.input))
-      val response = inventory.getInventoryResponse(config.queryDate, config.showDate)
-      println(write(response))
+    case Some(config) => process(config)
+  }
 
-    case None =>
-      println("please, pass proper params")
+  def process(config: Config): Unit = {
+    implicit val formats = DefaultFormats + new EnumNameSerializer(Genre) + new EnumNameSerializer(PerformanceStatus)
+
+    val inventory = InventoryService(Source.fromFile(config.input))
+    val response = inventory.getInventoryResponse(config.queryDate, config.showDate)
+    println(write(response))
   }
 
 }

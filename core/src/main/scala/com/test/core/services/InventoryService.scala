@@ -7,23 +7,13 @@ import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 import scala.io.BufferedSource
 import scala.util.matching.Regex
 
+/**
+  * class for accessing data of inventory.
+  *
+  * @param shows list of serialized shows. If you want to pass source and don't create shows by youself you should
+  *              use InventoryService.apply.
+  */
 class InventoryService(shows: List[Show]) {
-
-  def this(csvSource: BufferedSource)(implicit formatter: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")) = {
-    this(csvSource
-      .getLines()
-      .filter(_.nonEmpty)
-      //.map(line => line.split(",").map(_.trim))
-      .map(cols => {
-      val regex: Regex = """\"(.*)\",(.*),\"(.*)\"""".r
-      val res = regex.findAllMatchIn(cols).next()
-
-      val title = res.group(1)
-      val date = formatter.parseDateTime(res.group(2))
-      val genre = Genre.withName(res.group(3).toLowerCase)
-      Show(title, date, genre)
-    }).toList)
-  }
 
   def getInventoryResponse(queryDate: DateTime, showDate: DateTime): InventoryResponse = {
     val res = shows
@@ -36,4 +26,24 @@ class InventoryService(shows: List[Show]) {
   }
 
 
+}
+
+object InventoryService {
+
+  val regex: Regex = """\"(.*)\",(.*),\"(.*)\"""".r
+  val formatter: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")
+
+  def apply(csvSource: BufferedSource): InventoryService = {
+    val res = csvSource
+      .getLines()
+      .filter(_.nonEmpty)
+      .map(cols => {
+        val res = regex.findAllMatchIn(cols).next()
+        val title = res.group(1)
+        val date = formatter.parseDateTime(res.group(2))
+        val genre = Genre.withName(res.group(3).toLowerCase)
+        Show(title, date, genre)
+      }).toList
+    new InventoryService(res)
+  }
 }
